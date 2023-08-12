@@ -1,0 +1,63 @@
+package MonsterMovement;
+
+import java.util.*;
+
+import core.Position;
+import utils.Constants;
+
+// created with the help of Claude.Ai
+// Breadth First Search for shortest path. Adjacent also checks diagonals and obstacles
+public class BFSGrid {
+
+    public static List<Position> findShortestPath(ArrayList<Position> grid, Position start, Position end) {
+
+        boolean[][] visited = new boolean[Constants.TILE_ROWS][Constants.TILE_COLS];
+        
+        Queue<List<Position>> queue = new LinkedList<>();
+        // add start node to queue
+        queue.add(Arrays.asList(start));
+
+        while(!queue.isEmpty()) {
+            // get next path
+            List<Position> path = queue.remove();
+            // last cell is current
+            Position current = path.get(path.size() - 1);
+            
+            // success
+            if (current.getX() == end.getX() && current.getY() == end.getY()) {
+                return path;  
+            }
+
+            // check if visited and set true if not
+            if(visited[current.getX()][current.getY()]) continue;
+            visited[current.getX()][current.getY()] = true;
+            
+            // enqueue adjacent Positions
+            enqueueAdjacent(grid, current, queue, visited, path);
+        }
+
+        return null; // no path found
+    }
+
+    // check all adjacent cells
+    public static void enqueueAdjacent(ArrayList<Position> grid, Position current, Queue<List<Position>> queue, boolean[][] visited, List<Position> path) {
+        int[][] dirs = {{0,1}, {1,0}, {0,-1}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
+
+        for(int[] dir : dirs) {
+            int x = current.getX() + dir[0];
+            int y = current.getY() + dir[1];
+            
+            // check if in grid bounds and not an obstacle and not visited
+            if (isValid(grid, x, y) && !grid.get(y * Constants.TILE_COLS + x).isObstacle() && !visited[x][y]) {
+                List<Position> newPath = new ArrayList<>(path);
+                newPath.add(new Position(x, y));
+                queue.add(newPath);  
+            }
+        }
+    }
+
+    // check within grid bounds
+    public static boolean isValid(ArrayList<Position> grid, int x, int y) {
+        return (x >= 0 && x < Constants.TILE_ROWS) && (y >= 0 && y < Constants.TILE_COLS); 
+    } 
+}

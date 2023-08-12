@@ -1,0 +1,109 @@
+package MonsterMovement;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+
+import core.Monster;
+import core.Position;
+import utils.Constants;
+import utils.GameUtility;
+
+// path finding implemented but automated mouse dragging is not working (unable to fire mouse dragged)
+public class MonsterMovement {
+    
+    //map grid to create pathing
+    private ArrayList<Position> grid;
+    
+    initMonsterPathing();
+    
+    private void moveMonster() {
+        Monster monster = (Monster) current_creature;
+        int dist_to_target = monster.getPosition().distanceTo(current_target.getPosition());
+
+        List<Position> path = getMonsterPath(); //get path
+        if(path == null) {
+            System.out.println("MonsterPathing: could not find path.");
+        }
+        path.remove(0);                         //remove start which is where creature is
+        path.remove(path.size() - 1);           //remove end which is where target is
+        System.out.println(path);
+        /* UUID uuid = GameUtility.getKeyByValue(creatures_map, current_creature);
+        int index = GameUtility.getIdxByValue(creatures_index, uuid);
+        SpriteComponent sprite = game_panel.getSpriteById(index);
+        sprite.getLocation(); */
+        Iterator<Position> iter = path.iterator();
+
+        while(monster.getPosition().distanceTo(current_target.getPosition()) > 1
+              && monster.getAbilities().getCurrentMovement() > 0) {
+
+            if(iter.hasNext() && iter != null) {
+                
+                int start_x = monster.getPosition().getX();
+                int start_y = monster.getPosition().getY();
+                System.out.print("Start: "+monster.getPosition()+"\t");
+                Position end_pos = iter.next();
+                System.out.println("MoveTo: "+end_pos);
+                int end_x = end_pos.getX();
+                int end_y = end_pos.getY();
+                simulateMouseDrag(start_x, start_y, end_x, end_y);
+            }
+        }
+    }
+    
+    private void simulateMouseDrag(int start_x, int start_y, int end_x, int end_y) {
+        //point for mouse. gets top, left of game_panel
+        Point p = game_panel.getLocationOnScreen();
+        Robot robot;
+        //press move release = drag
+        try {
+            robot = new Robot();
+            robot.mouseMove(p.x + (32 * start_x) + 16, p.y + (32 * start_y) + 16);
+            robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            robot.mouseMove(p.x + (32 * end_x) + 16, p.y + (32 * end_y) + 16);
+            robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        } catch (AWTException e1) {
+            System.out.println("Robot: Mouse Drag issue.");
+        }
+    }
+    
+    //BFS pathing for Monster
+    private List<Position> getMonsterPath() {
+        
+        // obstacles
+        for(var creature : creatures_map.values()) {
+            if(creature.getName().equals(current_creature.getName()) ||
+               creature.getName().equals(current_target.getName())) {
+                continue;
+            }
+            else {
+                Position position = creature.getPosition();
+                int path_index = position.getY() * Constants.TILE_COLS + position.getX();
+                grid.set(path_index, new Position(position.getX(), position.getY(), true));
+            }
+        }
+
+        // goal
+        Position start = current_creature.getPosition();
+        Position end = current_target.getPosition();
+
+        List<Position> path = BFSGrid.findShortestPath(grid, start, end);
+
+        return path;
+    }
+
+    private void initMonsterPathing() {
+        int rows = Constants.TILE_ROWS;
+        int cols = Constants.TILE_COLS;
+        
+        grid = new ArrayList<>(rows*cols);
+
+        // populate grid
+        for(int j = 0; j < cols; j++) {
+            for(int i = 0; i < rows; i++) {
+                grid.add(j * cols + i, new Position(i, j));
+            }
+        }
+    }    
+}

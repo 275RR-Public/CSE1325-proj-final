@@ -1,0 +1,11 @@
+NAME,AVATAR,TYPE,HP,AC,STR,DEX,CON
+Acolyte,witch_00.png,HUMANOID,9,10,5,5,5
+Adult Black Dragon,GreatRedWyrm.png,DRAGON,195,19,11,7,10
+Goblin,Goblin.png,HUMANOID,7,15,4,7,5
+Gold Dragon Wyrmling,GreatGoldenWyrm.png,DRAGON,60,17,9,7,8
+Bearded Devil,NecroMancer.png,FIEND,52,13,8,7,7
+Rakshasa,Ghost.png,FIEND,110,16,7,8,9
+Night Hag,witch_00.png,FIEND,112,17,8,8,10
+Orc War Chief,OrcChief.png,HUMANOID,93,16,6,7,6
+Assassin,witch_00.png,HUMANOID,78,15,6,8,6
+Succubus,Ghost.png,FIEND,66,15,6,8,8
